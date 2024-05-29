@@ -2,12 +2,22 @@ package br.edu.up.todolist.models;
 
 import java.util.UUID;
 
-public class Tarefa {
+public class Tarefa implements Escrita {
     private UUID uuid;
     private String titulo;
     private String descricao;
     private String prioridade;
     private Usuario usuario;
+
+    public Tarefa() { }
+
+    public Tarefa(String titulo, String descricao, String prioridade, Usuario usuario) {
+        this.uuid = UUID.randomUUID();
+        this.titulo = titulo;
+        this.descricao = descricao;
+        this.prioridade = prioridade;
+        this.usuario = usuario;
+    }
 
     public UUID getUuid() {
         return uuid;
@@ -47,5 +57,16 @@ public class Tarefa {
 
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
+    }
+
+    @Override
+    public String toString() {
+        return "Tarefa{" +
+                "uuid=" + uuid +
+                ", titulo='" + titulo + '\'' +
+                ", descricao='" + descricao + '\'' +
+                ", prioridade='" + prioridade + '\'' +
+                ", usuario=" + usuario +
+                '}';
     }
 }
