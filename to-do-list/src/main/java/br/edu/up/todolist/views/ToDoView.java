@@ -15,29 +15,48 @@ public class ToDoView {
 
     public static void iniciar(Scanner scanner) {
         int op;
-
         do {
-            System.out.println("###########################");
-            System.out.println("#        TO-DO-LIST       #");
-            System.out.println("###########################");
-            System.out.println("0 - Sair");
-            System.out.println("1 - Cadastrar");
-            System.out.println("2 - Alterar");
-            System.out.println("3 - Remover");
-            System.out.println("4 - Listar");
-
+            exibirMenu();
             op = Util.lerOpcoesMenu(scanner);
-            exibirView(scanner, op);
+            exibirEscolha(scanner, op);
         } while (op != 0);
     }
 
-    private static void exibirView(Scanner scanner, int op) {
+    /**
+     * Método responsável por exibir o menu de opções
+     */
+    private static void exibirMenu() {
+        System.out.println("###########################");
+        System.out.println("#        TO-DO-LIST       #");
+        System.out.println("###########################");
+        System.out.println("0 - Sair");
+        System.out.println("1 - Cadastrar");
+        System.out.println("2 - Alterar");
+        System.out.println("3 - Remover");
+        System.out.println("4 - Listar");
+    }
+
+    /**
+     *
+     * @param scanner
+     * @param op
+     */
+    private static void exibirEscolha(Scanner scanner, int op) {
         switch (op) {
             case 0:
                 System.out.println("Tchauuuuuu!");
                 break;
             case 1:
                 cadastar(scanner);
+                break;
+            case 2:
+                atualizar(scanner);
+                break;
+            case 3:
+                remover(scanner);
+                break;
+            case 4:
+                listar();
                 break;
             case 99:
                 System.out.println("Você precisa informar um valor inteiro.");
@@ -79,15 +98,51 @@ public class ToDoView {
         }
     }
 
-    private static void atualizar() {
+    private static void atualizar(Scanner scanner) {
+        try {
+            listar();
+            System.out.println("Qual Tarefa você deseja atualizar?");
+            var uuid = scanner.nextLine();
 
+            System.out.println("####################################");
+            System.out.println("ATUALIZAÇÃO");
+            System.out.println("####################################");
+
+            System.out.println("Digite a descriçao: ");
+            var descricao = scanner.nextLine();
+
+            System.out.println("Digite a prioridade: ");
+            var prioridade = scanner.nextLine();
+
+            // criando o objeto tarefa
+            var tarefa = new Tarefa();
+            tarefa.setDescricao(descricao);
+            tarefa.setPrioridade(prioridade);
+
+            //salvando o objeto tarefa
+            TarefaController.atualizar(UUID.fromString(uuid), tarefa);
+        } catch (Exception ex) {
+            logger.error("Ocorreu um erro ao tentar criar uma tarefa.", ex);
+        }
     }
 
-    private static void remover() {
+    private static void remover(Scanner scanner) {
+        listar();
+        System.out.println("Qual Tarefa você deseja remover? ");
+        var uuid = scanner.nextLine();
 
+        TarefaController.remover(UUID.fromString(uuid));
     }
 
     private static void listar() {
+        var tarefas = TarefaController.listar();
+        System.out.println("######## LISTA DE TAREFAS ############");
+        tarefas.forEach(tarefa -> {
+            System.out.println("UUID: " + tarefa.getUuid());
+            System.out.println("NOME: " + tarefa.getTitulo());
+            System.out.println("-----------------------------------------");
+        });
+        System.out.println("########################################");
 
     }
 }
