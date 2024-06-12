@@ -1,6 +1,7 @@
 package br.edu.up.todolist.controllers;
 
 import br.edu.up.todolist.daos.TarefaDao;
+import br.edu.up.todolist.exceptions.TarefaNotFoundException;
 import br.edu.up.todolist.models.FormatacaoEscrita;
 import br.edu.up.todolist.models.Tarefa;
 import org.apache.logging.log4j.LogManager;
@@ -25,7 +26,7 @@ public abstract class TarefaController {
      * @param uuid
      * @return
      */
-    public static Tarefa buscarTarefaPorUuid(UUID uuid) {
+    public static Tarefa buscarTarefaPorUuid(UUID uuid) throws TarefaNotFoundException {
         // Busca as tarefas cadastradas no arquivo .txt
         var listaTarefas = listar();
         // Verificando se a tarefa existe
@@ -34,8 +35,7 @@ public abstract class TarefaController {
                                               .findFirst();
 
         if (tarefa.isEmpty()) {
-             // lançãr uma exceção
-            return null;
+             throw new TarefaNotFoundException("Não foi encontrada nenhuma Tarefa com o UUID: " + uuid);
         }
 
         return tarefa.get();
@@ -52,16 +52,12 @@ public abstract class TarefaController {
     /**
      * Método responsável por atualizar os dados de um tarefa
      * @param uuid
-     * @param tarefa
+     * @param tarefaAtualizada
      */
-    public static void atualizar(UUID uuid, Tarefa tarefaAtualizada) {
+    public static void atualizar(UUID uuid, Tarefa tarefaAtualizada) throws TarefaNotFoundException {
         // Verifica se a tarefa existe
         var tarefa = buscarTarefaPorUuid(uuid);
 
-        // TODO: Modifiucar essa validação
-        if (tarefa == null) {
-            return;
-        }
         // Atualizando os dados da tarefa
         tarefa.atualizarDados(tarefaAtualizada);
 
@@ -77,7 +73,8 @@ public abstract class TarefaController {
      * Método responsável por remover uma tarefa por UUID
      * @param uuid
      */
-    public static void remover(UUID uuid) {
+    public static void remover(UUID uuid) throws TarefaNotFoundException {
+        var tarefa =  buscarTarefaPorUuid(uuid);
         var dados = removerTarefaDaListaPorUuid(uuid);
         TarefaDao.escrever(TAREFA_FILE_NAME, dados, false);
     }

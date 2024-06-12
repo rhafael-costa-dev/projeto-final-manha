@@ -11,41 +11,38 @@ public class Main {
     private static final Logger logger = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) {
-        int op;
+        int op = 0;
         Scanner scanner = new Scanner(System.in);
 
         do {
-            System.out.println("###########################");
-            System.out.println("#           MENU          #");
-            System.out.println("###########################");
-            System.out.println("0 - SAIR");
-            System.out.println("1 - TO Do LIST");
-
+            exibirMenu();
             op = Util.lerOpcoesMenu(scanner);
-            exibirView(scanner, op);
-
+            processaEscolhaUsuario(scanner, op);
         } while (op != 0);
-
-        logger.info("Hello world!");
     }
 
-    private static void exibirView(Scanner scanner, int op) {
+    /**
+     * Método responsável por processar a escolha do usuário
+     * @param scanner
+     * @param op
+     */
+    private static void processaEscolhaUsuario(Scanner scanner, int op) {
         switch (op) {
-            case 0:
-                System.out.println("Tchauuuuuu!");
-                break;
-            case 1:
-                ToDoView.iniciar(scanner);
-                break;
-            case 99:
-                System.out.println("Você precisa informar um valor inteiro.");
-                break;
-            default:
-                System.out.println("Opção invalida! Escolha uma opção de acordo com o menu.");
-                break;
+            case 0 -> System.out.println("Programa encerrado");
+            case 1 -> ToDoView.iniciar(scanner);
+            case 99 -> Util.showFeedbackMessage("Você precisa informar um valor inteiro.");
+            default -> Util.showFeedbackMessage("Opção invalida! Escolha uma opção de acordo com o menu.");
         }
     }
 
-
-
+    /**
+     * Método responsável por exibir o menu principal
+     */
+    private static void exibirMenu() {
+        System.out.println("###########################");
+        System.out.println("#           MENU          #");
+        System.out.println("###########################");
+        System.out.println("0 - SAIR");
+        System.out.println("1 - TO Do LIST");
+    }
 }

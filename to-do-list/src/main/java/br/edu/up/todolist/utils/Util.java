@@ -28,4 +28,15 @@ public class Util {
         }
     }
 
+    public static void showFeedbackMessage(String message) {
+        System.out.println("-----------------------------");
+        System.out.println(message);
+        System.out.println("-----------------------------");
+    }
+
+    public static void showFeedbackMessage(String message, boolean isError) {
+        System.out.println("-----------------------------");
+        System.out.println("ERROR: " + message);
+        System.out.println("-----------------------------");
+    }
 }

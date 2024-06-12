@@ -2,6 +2,7 @@ package br.edu.up.todolist.views;
 
 import br.edu.up.todolist.controllers.TarefaController;
 import br.edu.up.todolist.controllers.UsuarioController;
+import br.edu.up.todolist.exceptions.TarefaNotFoundException;
 import br.edu.up.todolist.models.Tarefa;
 import br.edu.up.todolist.utils.Util;
 import org.apache.logging.log4j.LogManager;
@@ -34,6 +35,7 @@ public class ToDoView {
         System.out.println("2 - Alterar");
         System.out.println("3 - Remover");
         System.out.println("4 - Listar");
+        System.out.println("5 - Detalhar Tarefa");
     }
 
     /**
@@ -43,33 +45,19 @@ public class ToDoView {
      */
     private static void exibirEscolha(Scanner scanner, int op) {
         switch (op) {
-            case 0:
-                System.out.println("Tchauuuuuu!");
-                break;
-            case 1:
-                cadastar(scanner);
-                break;
-            case 2:
-                atualizar(scanner);
-                break;
-            case 3:
-                remover(scanner);
-                break;
-            case 4:
-                listar();
-                break;
-            case 99:
-                System.out.println("Você precisa informar um valor inteiro.");
-                break;
-            default:
-                System.out.println("Opção invalida! Escolha uma opção de acordo com o menu.");
-                break;
+            case 0 -> Util.showFeedbackMessage("");
+            case 1 -> cadastar(scanner);
+            case 2 -> atualizar(scanner);
+            case 3 -> remover(scanner);
+            case 4 -> listar();
+            case 5 -> detalhar(scanner);
+            case 99 -> Util.showFeedbackMessage("Você precisa informar um valor inteiro.");
+            default -> Util.showFeedbackMessage("Opção invalida! Escolha uma opção de acordo com o menu.");
         }
     }
 
     /**
-     * Método responsável por ler os inputs do usuario, e
-     * chamar a controller
+     * Método responsável por cadastrar um nova tarefa
      * @param scanner
      */
     private static void cadastar(Scanner scanner) {
@@ -98,6 +86,10 @@ public class ToDoView {
         }
     }
 
+    /**
+     * Método responsável por atualizar os dados da tarefa
+     * @param scanner
+     */
     private static void atualizar(Scanner scanner) {
         try {
             listar();
@@ -121,28 +113,77 @@ public class ToDoView {
 
             //salvando o objeto tarefa
             TarefaController.atualizar(UUID.fromString(uuid), tarefa);
+        } catch (TarefaNotFoundException ex) {
+            Util.showFeedbackMessage(ex.getMessage());
+            logger.warn("Ocorreu um erro ao tentar atualizar a tarefa.", ex);
         } catch (Exception ex) {
-            logger.error("Ocorreu um erro ao tentar criar uma tarefa.", ex);
+            var message = "Ocorreu um erro ao tentar criar uma tarefa.";
+            Util.showFeedbackMessage(message);
+            logger.error(message, ex);
         }
     }
 
+    /**
+     * Método responsável por remover um tarefa
+     * @param scanner
+     */
     private static void remover(Scanner scanner) {
-        listar();
-        System.out.println("Qual Tarefa você deseja remover? ");
-        var uuid = scanner.nextLine();
+        try {
+            listar();
+            System.out.println("Qual Tarefa você deseja remover? ");
+            var uuid = scanner.nextLine();
 
-        TarefaController.remover(UUID.fromString(uuid));
+            TarefaController.remover(UUID.fromString(uuid));
+        } catch (TarefaNotFoundException ex) {
+            Util.showFeedbackMessage(ex.getMessage(), true);
+            logger.warn("Ocorreu um erro ao tentar remover a tarefa.", ex);
+        }
     }
 
+    /**
+     * Método responável por listar todas as tarefas
+     */
     private static void listar() {
         var tarefas = TarefaController.listar();
         System.out.println("######## LISTA DE TAREFAS ############");
         tarefas.forEach(tarefa -> {
-            System.out.println("UUID: " + tarefa.getUuid());
-            System.out.println("NOME: " + tarefa.getTitulo());
-            System.out.println("-----------------------------------------");
+            exibirDadosTarefa(tarefa, false);
         });
         System.out.println("########################################");
+    }
 
+    /**
+     * Método responsável por exibir os detalhes da tarefa
+     * @param scanner
+     */
+    private static void detalhar(Scanner scanner) {
+        try {
+            listar();
+
+            System.out.println("Escolha uma tarefa.");
+            var uuid = scanner.nextLine();
+
+            var tarefa = TarefaController.buscarTarefaPorUuid(UUID.fromString(uuid));
+            exibirDadosTarefa(tarefa, true);
+        } catch (TarefaNotFoundException ex) {
+            Util.showFeedbackMessage(ex.getMessage());
+            logger.warn("Ocorreu um erro ao tentar buscar a tarefa por UUID.", ex);
+        }
+    }
+
+    /**
+     * Método responsável por exibir os dados da tarefa
+     * @param tarefa
+     * @param exibirDetalhes
+     */
+    private static void exibirDadosTarefa(Tarefa tarefa, boolean exibirDetalhes) {
+        System.out.println("UUID: " + tarefa.getUuid());
+        System.out.println("TITULO: " + tarefa.getTitulo());
+        if (exibirDetalhes) {
+            System.out.println("DESCRIÇÃO: " + tarefa.getDescricao());
+            System.out.println("PRIORIDADE: " + tarefa.getPrioridade());
+            System.out.println("USUARIO: " + tarefa.getUsuario().getNome());
+        }
+        System.out.println("-----------------------------------------");
     }
 }
